@@ -5,5 +5,21 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>JWaveZ</name>
-  <description>Z-Wave for Java Embedded</description>
+  <description>Z-Wave for Java Embedded
+
+Licensed under Apache 2.0</description>
+  <scm>
+  	<url>https://github.com/technosf/JWaveZ</url>
+  	<connection>https://github.com/technosf/JWaveZ.git</connection>
+  	<developerConnection>https://github.com/technosf/JWaveZ.git</developerConnection>
+  </scm>
+  <issueManagement>
+  	<url>https://github.com/technosf/JWaveZ/issues</url>
+  	<system>github</system>
+  </issueManagement>
+  <url>https://github.com/technosf/JWaveZ</url>
+  <inceptionYear>2016</inceptionYear>
+  <properties>
+  	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>
