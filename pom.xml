@@ -54,4 +54,5 @@ Licensed under Apache 2.0</description>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 </project>
