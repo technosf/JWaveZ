@@ -13,22 +13,20 @@
  */
 package com.github.technosf.jwavez.hardware;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.StreamCorruptedException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A self-serializing {@code HashMap} that maintains state
+ * A self-serializing {@code Map} that maintains state
  * <p>
  * Restoring serialized maps and then doing lazy consistency checks should
  * facilitate shorter initialization times.
@@ -46,31 +44,16 @@ public interface SerializableMap<K, V>
 {
 
     /**
-     * 
+     * Version ID
      */
     static final long serialVersionUID = 201601191634L;
 
     /**
-     * 
+     * Use a SHA digester. We do not care as long as there will not be
+     * collisions on the files we are saving, which is highly unlikely, even
+     * with MD5.
      */
     static final String DIGEST_FUNCTION = "SHA";
-
-
-    /**
-     * Sets the dirty flag
-     * <p>
-     * The dirty flag should be true is the in-memory and its serialized version
-     * may differ.
-     */
-    void setDirty(boolean dirty);
-
-
-    /**
-     * Has this {@code SerializableMap} been changed in memory?
-     * 
-     * @return true is changes have occurred
-     */
-    boolean isDirty();
 
 
     /**
@@ -80,20 +63,11 @@ public interface SerializableMap<K, V>
 
 
     /**
-     * Sets the time the map was last modified
-     * 
-     * @param lastModified
-     *            the timestamp
-     */
-    void setLastModified(long lastModified);
-
-
-    /**
      * Stores the SerializableMap
      * 
      * @throws IOException
      */
-    public void store() throws IOException;
+    void store() throws IOException;
 
 
     /**
@@ -108,37 +82,77 @@ public interface SerializableMap<K, V>
             throws NoSuchAlgorithmException, IOException;
 
 
-    /*
-     * Static functions 
+    /**
+     * Sets the dirty flag that indicates that the map has been modified.
+     * <p>
+     * The dirty flag should be true if the in-memory and its serialized version
+     * may differ.
+     */
+    void setDirty(boolean dirty);
+
+
+    /**
+     * Has this {@code SerializableMap} been changed in memory?
+     * 
+     * @return true if the map and its serialized version may be out of sync.
+     */
+    boolean isDirty();
+
+
+    /**
+     * Returns the time the map was last modified
+     * 
+     * @return the timestamp
+     */
+    long getStoreTimestamp();
+
+
+    /**
+     * Sets the time the map was last modified
+     * 
+     * @param timestamp
+     *            the timestamp
+     */
+    void setStoreTimestamp(long timestamp);
+
+
+    /*  ---------------------------------------------------------------
+     * 
+     * Static functions
+     * 
+     *  ---------------------------------------------------------------
      */
 
     /**
-     * @param file
-     * @return
+     * Restores a {@code SerializableMap}
+     * 
+     * @param serializableMap
+     *            the {@code SerializableMap} to restore
+     * @throws FileNotFoundException
+     *             It's serialized file was not found
      * @throws IOException
+     *             The serialized file was corrupt
      * @throws ClassNotFoundException
+     *             The implementation of {@code SerializableMap} was not found
      */
     @SuppressWarnings("unchecked")
-    static <K, V> Map<? extends K, ? extends V> restore(File file)
-            throws IOException, ClassNotFoundException
+    static <K, V> void restore(
+            SerializableMap<K, V> serializableMap)
+                    throws FileNotFoundException, IOException,
+                    ClassNotFoundException
     {
-        Map<K, V> map = new HashMap<K, V>();
-        try (FileInputStream fis = new FileInputStream(file))
+        SerializableMap<K, V> map;
+        try (FileInputStream fis =
+                new FileInputStream(serializableMap.getFile()))
         {
             try (ObjectInputStream ois = new ObjectInputStream(fis))
             {
-                map = (Map<K, V>) ois.readObject();
-            }
-            catch (StreamCorruptedException e)
-            {
-                // Wrong type of file
+                map = (SerializableMap<K, V>) ois.readObject();
+                serializableMap.setDirty(false);
+                serializableMap.setStoreTimestamp(map.getStoreTimestamp());
+                serializableMap.putAll(map);
             }
         }
-        catch (EOFException e)
-        {
-            // END OF FILE
-        }
-        return map;
     }
 
 
@@ -179,7 +193,7 @@ public interface SerializableMap<K, V>
      */
     static <K, V> void store(SerializableMap<K, V> map) throws IOException
     {
-        map.setLastModified(System.currentTimeMillis());
+        map.setStoreTimestamp(System.currentTimeMillis());
 
         try (FileOutputStream fos =
                 new FileOutputStream(map.getFile());
@@ -195,7 +209,7 @@ public interface SerializableMap<K, V>
     /**
      * Generate a digest of a file
      * <p>
-     * Used to check changes
+     * Reads the file off disk and produces a digest of that file
      * 
      * @param digest
      *            the digest algo
@@ -204,22 +218,24 @@ public interface SerializableMap<K, V>
      * @return the file digest
      * @throws IOException
      */
+    @SuppressWarnings("null")
     static byte[] generateDigest(MessageDigest digest, File file)
             throws IOException
     {
-        //Create byte array to read data in chunks
+        //Create byte array to read data in chunks of 1K
         byte[] byteArray = new byte[1024];
         int bytesCount = 0;
 
         try (FileInputStream fis = new FileInputStream(file))
         {
-            //Read file data and update in message digest
             while ((bytesCount = fis.read(byteArray)) != -1)
+            /*
+             * Read file data and update in message digest
+             */
             {
                 digest.update(byteArray, 0, bytesCount);
             }
         }
-
         return digest.digest();
     }
 

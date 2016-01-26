@@ -20,7 +20,8 @@ import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.Map;
+
+import org.eclipse.jdt.annotation.Nullable;
 
 import com.github.technosf.jwavez.hardware.SerializableMap;
 
@@ -28,11 +29,13 @@ import com.github.technosf.jwavez.hardware.SerializableMap;
  * A self-serializing {@code HashMap} that maintains state
  * <p>
  * 
- * @author
- * @since
- * @version
+ * @author technosf
+ * @since 0.0.1
+ * @version 0.0.1
  * @param <K>
+ *            Key class
  * @param <V>
+ *            Value class
  */
 public class SerializableHashMap<K, V>
         extends HashMap<K, V>
@@ -40,46 +43,68 @@ public class SerializableHashMap<K, V>
 {
 
     /**
-     * 
+     * Version Id
      */
     private static final long serialVersionUID = 201601191634L;
 
-    private static final String DIGEST_FUNCTION = "SHA-1";
-
+    /**
+     * The {@code MessageDisgest} in play. We don't serialize it, but create one
+     * as we need.
+     */
+    @Nullable
     private transient MessageDigest md;
+
+    /**
+     * The {@code File} this Map serialize to.
+     */
     private File file;
+
+    /**
+     * Keep a time stamp of the last update
+     */
     private long lastModified = 0l;
+
+    /**
+     * Has the map changed in memory?
+     */
     private boolean dirty;
-    private byte[] digest;
+    //private byte[] digest;
 
 
     /**
-     * @param store
+     * Instantiate a {@code SerializableMap} and it file
+     * 
+     * @param file
+     *            the file to serialize this map to
      * @throws ClassNotFoundException
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
-    public SerializableHashMap(File store)
+    public SerializableHashMap(@Nullable File file)
             throws ClassNotFoundException, IOException
     {
         super();
 
-        if (store == null || store.getPath().isEmpty() || store.isDirectory()
-                || !store.canWrite())
+        if (file == null || file.getPath().isEmpty() || file.isDirectory()
+                || !file.canWrite())
+        /*
+         * File is not a writable file and is unusable
+         */
         {
             throw new IOException("Cannot use file");
         }
-        else if (!store.exists())
+        else if (!file.exists())
+        /*
+         * File does not exist, so touch it
+         */
         {
-            store.createNewFile();
+            file.createNewFile();
         }
 
-        file = store;
-        if (store != null && store.exists() && store.canRead())
-        {
-            putAll((Map<? extends K, ? extends V>) SerializableMap
-                    .restore(store));
-        }
+        /*
+         * The file exists, so set it in place and read it
+         */
+        this.file = file;
+        SerializableMap.restore(this);
     }
 
 
@@ -107,11 +132,15 @@ public class SerializableHashMap<K, V>
      *
      * @see com.github.technosf.jwavez.hardware.SerializableMap#digest()
      */
+    @SuppressWarnings("null")
     @Override
     public byte[] digest()
             throws NoSuchAlgorithmException, IOException
     {
         if (md == null)
+        /*
+         * Need to generate a new message digest
+         */
         {
             md = MessageDigest.getInstance(DIGEST_FUNCTION);
         }
@@ -119,6 +148,11 @@ public class SerializableHashMap<K, V>
         return SerializableMap.generateDigest(md, file);
     }
 
+
+    /* ----------------------------------------------------------------
+     * Getters and Setters
+     * ----------------------------------------------------------------
+     */
 
     /**
      * {@inheritDoc}
@@ -156,11 +190,27 @@ public class SerializableHashMap<K, V>
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
+     * @see com.github.technosf.jwavez.hardware.SerializableMap#getStoreTimestamp()
+     */
     @Override
-    public void setLastModified(long lastModified)
+    public long getStoreTimestamp()
+    {
+        return lastModified;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see com.github.technosf.jwavez.hardware.SerializableMap#setStoreTimestamp(long)
+     */
+    @Override
+    public void setStoreTimestamp(long lastModified)
     {
         this.lastModified = lastModified;
-
     }
 
 }

@@ -30,6 +30,10 @@ Licensed under Apache 2.0</description>
 	</build>
 
 	<dependencies>
+			<dependency>
+				<groupId>org.eclipse.jdt</groupId>
+				<artifactId>org.eclipse.jdt.annotation</artifactId>
+			</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
