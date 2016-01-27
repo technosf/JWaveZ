@@ -24,105 +24,111 @@ import java.security.NoSuchAlgorithmException;
 
 import org.testng.annotations.Test;
 
+/**
+ * @author technosf
+ * @since 0.0.1
+ * @version 0.0.1
+ */
+@SuppressWarnings("null")
 public abstract class SerializableMapAbstractTest
 {
 
-    @Test
-    abstract void digest();
+    //    @Test(groups = "static")
+    //    public void restore()
+    //    {
+    //        throw new RuntimeException("Test not implemented");
+    //    }
+    //
+    //
+    //    @Test(groups = "static")
+    //    public void putWithCheck()
+    //    {
+    //        throw new RuntimeException("Test not implemented");
+    //    }
+    //
+    //
+    //    @Test(groups = "static")
+    //    public void storeSerializableMapKV()
+    //    {
+    //        throw new RuntimeException("Test not implemented");
+    //    }
 
-
-    @Test
+    /**
+     * Digest some files and ensure that the digest is picking up differences in
+     * each field.
+     */
+    @Test(groups = "static")
     public final void generateDigest()
             throws NoSuchAlgorithmException, IOException
     {
         MessageDigest md =
                 MessageDigest.getInstance(SerializableMap.DIGEST_FUNCTION);
-        File file = File.createTempFile(this.getClass().getName(), ".test.tmp");
+        File sm1 = File.createTempFile(this.getClass().getName(), ".test1.tmp");
+        File sm2 = File.createTempFile(this.getClass().getName(), ".test2.tmp");
 
-        byte[] fileempty = SerializableMap.generateDigest(md, file);
-        byte[] filestillempty = SerializableMap.generateDigest(md, file);
+        /*
+         * Compare empty files
+         */
+        byte[] fileempty = SerializableMap.generateDigest(md, sm1);
+        byte[] filestillempty = SerializableMap.generateDigest(md, sm1);
+        byte[] otheremptyfile = SerializableMap.generateDigest(md, sm2);
+
         assertEquals(fileempty, filestillempty);
 
-        try (PrintWriter writer = new PrintWriter(file))
-        {
+        assertEquals(fileempty, otheremptyfile);
 
+        /*
+         * Compare non-empty files
+         */
+        try (PrintWriter writer = new PrintWriter(sm1))
+        {
+            writer.println("The first line");
+            writer.println("The second line");
+        }
+        try (PrintWriter writer = new PrintWriter(sm2))
+        {
             writer.println("The first line");
             writer.println("The second line");
         }
 
-        byte[] filefull = SerializableMap.generateDigest(md, file);
-        byte[] filestillfull = SerializableMap.generateDigest(md, file);
+        byte[] filefull = SerializableMap.generateDigest(md, sm1);
+        byte[] filestillfull = SerializableMap.generateDigest(md, sm1);
+        byte[] otherfullfile = SerializableMap.generateDigest(md, sm2);
+
         assertNotEquals(filefull, fileempty);
         assertEquals(filefull, filestillfull);
 
-        try (PrintWriter writer = new PrintWriter(file))
+        assertNotEquals(otheremptyfile, otherfullfile);
+        assertEquals(filefull, otherfullfile);
+
+        /*
+         * Update the non empty files
+         */
+        try (PrintWriter writer = new PrintWriter(sm1))
+        {
+
+            writer.println("The thrid line");
+            writer.println("The forth line");
+        }
+        try (PrintWriter writer = new PrintWriter(sm2))
         {
 
             writer.println("The thrid line");
             writer.println("The forth line");
         }
 
-        byte[] filechanged = SerializableMap.generateDigest(md, file);
-        byte[] filestillchanged = SerializableMap.generateDigest(md, file);
+        byte[] filechanged = SerializableMap.generateDigest(md, sm1);
+        byte[] filestillchanged = SerializableMap.generateDigest(md, sm1);
+        byte[] otherfilechanged = SerializableMap.generateDigest(md, sm2);
+
         assertNotEquals(filechanged, fileempty);
         assertNotEquals(filechanged, filefull);
         assertEquals(filechanged, filestillchanged);
 
+        assertNotEquals(otheremptyfile, otherfilechanged);
+        assertNotEquals(otherfullfile, otherfilechanged);
+        assertEquals(filechanged, otherfilechanged);
+
     }
 
-
-    @Test
-    public void getFile()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void isDirty()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void putWithCheck()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void restore()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void setDirty()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void setLastModified()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void store()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
-
-
-    @Test
-    public void storeSerializableMapKV()
-    {
-        throw new RuntimeException("Test not implemented");
-    }
 }

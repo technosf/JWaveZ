@@ -30,63 +30,102 @@ import org.testng.annotations.Test;
 
 import com.github.technosf.jwavez.hardware.impl.SerializableHashMap;
 
-public class SerializableHashMapTest extends SerializableMapAbstractTest {
-	Map<String, SerializableHashMap<String, String>> maps = new HashMap<String, SerializableHashMap<String, String>>();
+/**
+ * @author technosf
+ * @since 0.0.1
+ * @version 0.0.1
+ */
+//@SuppressWarnings("null")
+public class SerializableHashMapTest extends SerializableMapAbstractTest
+{
+    Map<String, SerializableHashMap<String, String>> maps =
+            new HashMap<String, SerializableHashMap<String, String>>();
 
-	@DataProvider(name = "mapData")
-	public Object[][] createData1() throws IOException {
-		File badPathFile = new File("");
-		File nonExistantFile = File.createTempFile("nofile", ".tmp");
-		nonExistantFile.delete();
-		File emptyFile = File.createTempFile("empty", ".tmp");
-		File wrongFile = File.createTempFile("stuff", ".tmp");
-		Files.write(wrongFile.toPath(), Arrays.asList("The first line", "The second line"), Charset.forName("UTF-8"));
 
-		Map<String, String> map = new HashMap<>();
-		map.put("1", "One");
-		map.put("2", "Two");
+    /**
+     * Test SerializableMap and files
+     */
+    @DataProvider(name = "mapData")
+    public Object[][] mapData() throws IOException
+    {
+        File badPathFile = new File("");
+        File nonExistantFile = File.createTempFile("nofile", ".tmp");
+        nonExistantFile.delete();
+        File emptyFile = File.createTempFile("empty", ".tmp");
+        File wrongFile = File.createTempFile("stuff", ".tmp");
+        Files.write(wrongFile.toPath(),
+                Arrays.asList("The first line", "The second line"),
+                Charset.forName("UTF-8"));
 
-		return new Object[][] { { "Null", null, null, true, true }, { "bad path", nonExistantFile, null, true, false },
-				{ "Non-existant file", nonExistantFile, null, false, false },
-				{ "Empty file", emptyFile, null, false, false }
-				// ,
-				// { "Existant other-file", wrongFile, null, false, true },
-				// { "New file", File.createTempFile(
-				// "SerializableHashMapTest-1", ".tmp"), map, false,
-				// false }
-		};
-	}
+        Map<String, String> map = new HashMap<>();
+        map.put("1", "One");
+        map.put("2", "Two");
 
-	@Test(dataProvider = "mapData")
-	public void store(String testName, File file, Map<String, String> data, boolean storeexception,
-			boolean restoreexception) throws IOException, ClassNotFoundException {
-		try {
-			SerializableHashMap<String, String> classUnderTest = new SerializableHashMap<String, String>(file);
-			classUnderTest.store();
-			assertFalse(storeexception, "Expected Exception test");
-			maps.put(testName, classUnderTest);
-		} catch (Exception e) {
-			assertTrue(storeexception, "Unexpected Exception test");
-		}
+        /*
+         * String testName
+         * File file
+         * Map<String, String> data
+         * boolean storeexception
+         * boolean restoreexception
+         */
+        return new Object[][] {
+                { "Null", null, null, true, true },
+                { "bad path", nonExistantFile, null, true, true },
+                { "Non-existant file", nonExistantFile, null, true, true },
+                { "Empty file", emptyFile, null, true, true },
+                { "Existant other-file", wrongFile, null, true, true },
+                { "New file", File.createTempFile(
+                        "SerializableHashMapTest-1", ".tmp"), map, true,
+                        true }
+        };
+    }
 
-	}
 
-	@SuppressWarnings("unchecked")
-	@Test(dependsOnMethods = { "store" }, dataProvider = "mapData")
-	public void restore(String testName, File file, Map<String, String> data, boolean storeexception,
-			boolean restoreexception) throws IOException, ClassNotFoundException {
-		try {
-			Map<String, String> classUnderTest = (Map<String, String>) SerializableHashMap.restore(file);
-			assertFalse(restoreexception, "Exception expected");
-			assertEquals(classUnderTest, maps.get(testName));
-		} catch (Exception e) {
-			assertTrue(restoreexception, "Exception not expected");
-		}
-	}
+    /**
+     * Test the <em>store</em> function
+     */
+    @Test(dependsOnGroups = { "static" }, dataProvider = "mapData")
+    public void store(String testName, File file, Map<String, String> data,
+            boolean storeexception,
+            boolean restoreexception) throws IOException, ClassNotFoundException
+    {
+        try
+        {
+            SerializableHashMap<String, String> classUnderTest =
+                    new SerializableHashMap<String, String>(file);
+            classUnderTest.store();
+            assertFalse(storeexception, "Expected Exception test");
+            maps.put(testName, classUnderTest);
+        }
+        catch (Exception e)
+        {
+            assertTrue(storeexception,
+                    "Store - " + testName + ": Unexpected Exception test");
+        }
+    }
 
-	@Override
-	void digest() {
-		// TODO Auto-generated method stub
 
-	}
+    /**
+     * Test the <em>restore</em> function post store
+     */
+    @Test(dependsOnGroups = { "static" }, dependsOnMethods = {
+            "store" }, dataProvider = "mapData")
+    public void restore(String testName, File file, Map<String, String> data,
+            boolean storeexception,
+            boolean restoreexception) throws IOException, ClassNotFoundException
+    {
+        try
+        {
+            SerializableMap<String, String> classUnderTest =
+                    new SerializableHashMap<String, String>(file);
+            SerializableMap.restore(classUnderTest);
+            assertFalse(restoreexception, "Exception expected");
+            assertEquals(classUnderTest, maps.get(testName));
+        }
+        catch (Exception e)
+        {
+            assertTrue(restoreexception,
+                    "Restore - " + testName + ": Unexpected Exception test");
+        }
+    }
 }
