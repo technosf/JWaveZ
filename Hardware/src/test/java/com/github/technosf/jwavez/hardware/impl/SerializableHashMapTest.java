@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.github.technosf.jwavez.hardware;
+package com.github.technosf.jwavez.hardware.impl;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -28,7 +28,8 @@ import java.util.Map;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.github.technosf.jwavez.hardware.impl.SerializableHashMap;
+import com.github.technosf.jwavez.hardware.SerializableMap;
+import com.github.technosf.jwavez.hardware.SerializableMapAbstractTest;
 
 /**
  * @author technosf
@@ -44,6 +45,12 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
 
     /**
      * Test SerializableMap and files
+     * <p>
+     * String testName
+     * File file
+     * Map<String, String> data
+     * boolean storeexception
+     * boolean restoreexception
      */
     @DataProvider(name = "mapData")
     public Object[][] mapData() throws IOException
@@ -69,9 +76,9 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
          * boolean restoreexception
          */
         return new Object[][] {
-                { "Null", null, null, true, true },
-                { "bad path", nonExistantFile, null, true, true },
-                { "Non-existant file", nonExistantFile, null, true, true },
+                //                { "Null", null, null, true, true },
+                //                { "bad path", nonExistantFile, null, true, true },
+                //                { "Non-existant file", nonExistantFile, null, true, true },
                 { "Empty file", emptyFile, null, true, true },
                 { "Existant other-file", wrongFile, null, true, true },
                 { "New file", File.createTempFile(
