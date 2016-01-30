@@ -104,7 +104,13 @@ public class SerializableHashMap<K, V>
          * The file exists, so set it in place and read it
          */
         this.file = file;
-        SerializableMap.restore(this);
+        if (file.length() > 0)
+        /*
+         * Non-empty file, so attempt restore
+         */
+        {
+            SerializableMap.restore(this);
+        }
     }
 
 

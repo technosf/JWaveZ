@@ -63,6 +63,8 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
         Files.write(wrongFile.toPath(),
                 Arrays.asList("The first line", "The second line"),
                 Charset.forName("UTF-8"));
+        File newFile = File.createTempFile(
+                "SerializableHashMapTest-1", ".tmp");
 
         Map<String, String> map = new HashMap<>();
         map.put("1", "One");
@@ -79,11 +81,9 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
                 //                { "Null", null, null, true, true },
                 //                { "bad path", nonExistantFile, null, true, true },
                 //                { "Non-existant file", nonExistantFile, null, true, true },
-                { "Empty file", emptyFile, null, true, true },
-                { "Existant other-file", wrongFile, null, true, true },
-                { "New file", File.createTempFile(
-                        "SerializableHashMapTest-1", ".tmp"), map, true,
-                        true }
+                //{ "Empty file", emptyFile, null, true, true },
+                //{ "Existant other-file", wrongFile, null, true, true },
+                { "New file", newFile, map, false, false }
         };
     }
 
@@ -100,6 +100,10 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
         {
             SerializableHashMap<String, String> classUnderTest =
                     new SerializableHashMap<String, String>(file);
+            if (data != null)
+            {
+                classUnderTest.putAll(data);
+            }
             classUnderTest.store();
             assertFalse(storeexception, "Expected Exception test");
             maps.put(testName, classUnderTest);
@@ -107,7 +111,8 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
         catch (Exception e)
         {
             assertTrue(storeexception,
-                    "Store - " + testName + ": Unexpected Exception test");
+                    "Store - " + testName + ": Unexpected Exception "
+                            + e.getMessage() + "test");
         }
     }
 
@@ -132,7 +137,8 @@ public class SerializableHashMapTest extends SerializableMapAbstractTest
         catch (Exception e)
         {
             assertTrue(restoreexception,
-                    "Restore - " + testName + ": Unexpected Exception test");
+                    "Restore - " + testName + ": Unexpected Exception "
+                            + e.getMessage() + " test");
         }
     }
 }

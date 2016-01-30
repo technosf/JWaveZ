@@ -124,6 +124,68 @@ public interface SerializableMap<K, V>
      */
 
     /**
+     * Generate a digest of a file
+     * <p>
+     * Reads the file off disk and produces a digest of that file
+     * 
+     * @param digest
+     *            the digest algo
+     * @param file
+     *            the file to digest
+     * @return the file digest
+     * @throws IOException
+     */
+    @SuppressWarnings("null")
+    static byte[] generateDigest(MessageDigest digest, File file)
+            throws IOException
+    {
+        //Create byte array to read data in chunks of 1K
+        byte[] byteArray = new byte[1024];
+        int bytesCount = 0;
+
+        try (FileInputStream fis = new FileInputStream(file))
+        {
+            while ((bytesCount = fis.read(byteArray)) != -1)
+            /*
+             * Read file data and update in message digest
+             */
+            {
+                digest.update(byteArray, 0, bytesCount);
+            }
+        }
+        return digest.digest();
+    }
+
+
+    /**
+     * A {@code put} that sets the dirty flag
+     * 
+     * @param map
+     *            the {@code SerializableMap} to put the value in
+     * @param key
+     *            the put key
+     * @param value
+     *            the put value
+     * @return the prior value of the key
+     */
+    static <K, V> V putWithCheck(SerializableMap<K, V> map, K key, V value)
+    {
+        V v = map.put(key, value);
+
+        if (v != null)
+        {
+            map.setDirty(v.equals(value));
+        }
+        else if (value != null)
+        {
+            map.setDirty(value.equals(v));
+        }
+
+        return v;
+    }
+
+
+    /**
      * Restores a {@code SerializableMap}
      * 
      * @param serializableMap
@@ -157,41 +219,17 @@ public interface SerializableMap<K, V>
 
 
     /**
-     * A {@code put} that sets the dirty flag
-     * 
-     * @param map
-     *            the {@code SerializableMap} to put the value in
-     * @param key
-     *            the put key
-     * @param value
-     *            the put value
-     * @return the prior value of the key
-     */
-    static <K, V> V putWithCheck(SerializableMap<K, V> map, K key, V value)
-    {
-        V v = map.put(key, value);
-
-        if (v != null)
-        {
-            map.setDirty(v.equals(value));
-        }
-        else if (value != null)
-        {
-            map.setDirty(value.equals(v));
-        }
-
-        return v;
-    }
-
-
-    /**
      * Store the {@code SerializableMap} to its file
+     * <p>
+     * Overwrites the file on disk.
      * 
      * @param map
      *            the map to store
+     * @throws FileNotFoundException
      * @throws IOException
      */
-    static <K, V> void store(SerializableMap<K, V> map) throws IOException
+    static <K, V> void store(SerializableMap<K, V> map)
+            throws FileNotFoundException, IOException
     {
         map.setStoreTimestamp(System.currentTimeMillis());
 
@@ -203,40 +241,6 @@ public interface SerializableMap<K, V>
         }
 
         map.setDirty(false);
-    }
-
-
-    /**
-     * Generate a digest of a file
-     * <p>
-     * Reads the file off disk and produces a digest of that file
-     * 
-     * @param digest
-     *            the digest algo
-     * @param file
-     *            the file to digest
-     * @return the file digest
-     * @throws IOException
-     */
-    @SuppressWarnings("null")
-    static byte[] generateDigest(MessageDigest digest, File file)
-            throws IOException
-    {
-        //Create byte array to read data in chunks of 1K
-        byte[] byteArray = new byte[1024];
-        int bytesCount = 0;
-
-        try (FileInputStream fis = new FileInputStream(file))
-        {
-            while ((bytesCount = fis.read(byteArray)) != -1)
-            /*
-             * Read file data and update in message digest
-             */
-            {
-                digest.update(byteArray, 0, bytesCount);
-            }
-        }
-        return digest.digest();
     }
 
 }
