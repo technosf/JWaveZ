@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
  * @since 0.0.1
  * @version 0.0.1
  */
-@SuppressWarnings("null")
 public abstract class SerializableMapAbstractTest
 {
 

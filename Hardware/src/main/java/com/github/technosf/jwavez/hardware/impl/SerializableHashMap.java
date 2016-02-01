@@ -138,7 +138,6 @@ public class SerializableHashMap<K, V>
      *
      * @see com.github.technosf.jwavez.hardware.SerializableMap#digest()
      */
-    @SuppressWarnings("null")
     @Override
     public byte[] digest()
             throws NoSuchAlgorithmException, IOException

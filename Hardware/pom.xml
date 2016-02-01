@@ -8,9 +8,7 @@
 		<artifactId>jwavez</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>com.github.technosf.jwavez</groupId>
 	<artifactId>Hardware</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>Hardware</name>
 	<url>http://maven.apache.org</url>
 	<properties>

@@ -135,7 +135,6 @@ public interface SerializableMap<K, V>
      * @return the file digest
      * @throws IOException
      */
-    @SuppressWarnings("null")
     static byte[] generateDigest(MessageDigest digest, File file)
             throws IOException
     {
@@ -210,9 +209,9 @@ public interface SerializableMap<K, V>
             try (ObjectInputStream ois = new ObjectInputStream(fis))
             {
                 map = (SerializableMap<K, V>) ois.readObject();
-                serializableMap.setDirty(false);
-                serializableMap.setStoreTimestamp(map.getStoreTimestamp());
                 serializableMap.putAll(map);
+                serializableMap.setStoreTimestamp(map.getStoreTimestamp());
+                serializableMap.setDirty(false);
             }
         }
     }
