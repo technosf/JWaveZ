@@ -135,6 +135,7 @@ public interface SerializableMap<K, V>
      * @return the file digest
      * @throws IOException
      */
+    @SuppressWarnings("null")
     static byte[] generateDigest(MessageDigest digest, File file)
             throws IOException
     {
