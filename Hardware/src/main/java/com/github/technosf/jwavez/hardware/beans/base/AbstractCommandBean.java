@@ -32,30 +32,21 @@ public abstract class AbstractCommandBean extends AbstractNominalBean
     private final CommandClass basic;
 
 
-    public AbstractCommandBean(String key, String label)
-    {
-        super(key, label);
-        commandClasses = null;
-        basic = null;
-    }
-
-
-    public AbstractCommandBean(String key, String label, String commandClasses)
+    public AbstractCommandBean(String key, String label,
+            @Nullable String commandClasses,
+            @Nullable String basic)
     {
         super(key, label);
         this.commandClasses =
                 CommandClass.extractCommandClasses(commandClasses);
-        basic = null;
-    }
-
-
-    public AbstractCommandBean(String key, String label, String commandClasses,
-            String basic)
-    {
-        super(key, label);
-        this.commandClasses =
-                CommandClass.extractCommandClasses(commandClasses);
-        this.basic = CommandClass.valueOf(basic);
+        if (basic != null)
+        {
+            this.basic = CommandClass.valueOf(basic);
+        }
+        else
+        {
+            this.basic = null;
+        }
     }
 
 

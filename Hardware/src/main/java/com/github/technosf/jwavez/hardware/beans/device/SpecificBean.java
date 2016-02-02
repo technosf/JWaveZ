@@ -13,6 +13,8 @@
  */
 package com.github.technosf.jwavez.hardware.beans.device;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import com.github.technosf.jwavez.hardware.beans.base.AbstractCommandBean;
 
 /**
@@ -22,17 +24,9 @@ import com.github.technosf.jwavez.hardware.beans.base.AbstractCommandBean;
  */
 public class SpecificBean extends AbstractCommandBean
 {
-
-    public SpecificBean(String key, String label)
-    {
-        super(key, label);
-    }
-
-
     public SpecificBean(String key, String label,
-            String commandClasses)
+            @Nullable String commandClasses, @Nullable String basic)
     {
-        super(key, label, commandClasses);
+        super(key, label, commandClasses, basic);
     }
-
 }

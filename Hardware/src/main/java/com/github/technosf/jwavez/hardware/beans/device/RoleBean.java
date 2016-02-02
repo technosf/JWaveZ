@@ -26,7 +26,7 @@ public class RoleBean extends AbstractCommandBean
     public RoleBean(String key, String label,
             String commandClasses)
     {
-        super(key, label, commandClasses);
+        super(key, label, commandClasses, null);
     }
 
 }

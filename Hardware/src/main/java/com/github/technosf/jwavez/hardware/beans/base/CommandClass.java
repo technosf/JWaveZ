@@ -16,6 +16,8 @@ package com.github.technosf.jwavez.hardware.beans.base;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * @author technosf
  * @since 0.0.1
@@ -25,10 +27,11 @@ public enum CommandClass
 {
     X5a;
 
-    public static Set<CommandClass> extractCommandClasses(String commandClasses)
+    public static Set<CommandClass> extractCommandClasses(
+            @Nullable String commandClasses)
     {
         Set<CommandClass> commandClassSet = new HashSet<>();
-
+        // Handle nulls
         return commandClassSet;
     }
 }

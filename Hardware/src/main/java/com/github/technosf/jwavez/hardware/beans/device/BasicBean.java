@@ -13,21 +13,19 @@
  */
 package com.github.technosf.jwavez.hardware.beans.device;
 
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.github.technosf.jwavez.hardware.beans.base.AbstractCommandNodeBean;
+import com.github.technosf.jwavez.hardware.beans.base.AbstractNominalBean;
 
 /**
  * @author technosf
  * @since 0.0.1
  * @version 0.0.1
  */
-public class GenericBean extends AbstractCommandNodeBean<SpecificBean>
+public class BasicBean extends AbstractNominalBean
 {
-    public GenericBean(String key, String label,
-            @Nullable String commandClasses, @Nullable String basic)
+
+    public BasicBean(String key, String label)
     {
-        super(key, label, commandClasses, basic);
+        super(key, label);
     }
 
 }

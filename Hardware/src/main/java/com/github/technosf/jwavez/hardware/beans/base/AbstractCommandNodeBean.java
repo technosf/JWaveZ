@@ -30,21 +30,8 @@ public abstract class AbstractCommandNodeBean<T> extends AbstractCommandBean
     private final Set<T> elements = new HashSet<>();
 
 
-    public AbstractCommandNodeBean(String key, String label)
-    {
-        super(key, label);
-    }
-
-
     public AbstractCommandNodeBean(String key, String label,
-            String commandClasses)
-    {
-        super(key, label, commandClasses);
-    }
-
-
-    public AbstractCommandNodeBean(String key, String label,
-            String commandClasses, String basic)
+            @Nullable String commandClasses, @Nullable String basic)
     {
         super(key, label, commandClasses, basic);
     }

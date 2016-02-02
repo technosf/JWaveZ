@@ -32,12 +32,18 @@ public abstract class AbstractXmlReader
      * @throws XMLStreamException
      * @throws IOException
      */
-    @SuppressWarnings("null")
     protected final void initialize(File inputFile)
             throws XMLStreamException, IOException
     {
-        initialize(Files.newInputStream(inputFile.toPath(),
-                StandardOpenOption.READ));
+        InputStream inputstream = Files.newInputStream(inputFile.toPath(),
+                StandardOpenOption.READ);
+
+        if (inputstream == null)
+        {
+            throw new IOException("File not found.");
+        }
+
+        initialize(inputstream);
     }
 
 
@@ -48,7 +54,6 @@ public abstract class AbstractXmlReader
      *            input stream providing the XML
      * @throws XMLStreamException
      */
-    @SuppressWarnings("null")
     protected final void initialize(InputStream inputStream)
             throws XMLStreamException
     {
@@ -60,7 +65,11 @@ public abstract class AbstractXmlReader
          * Read the XML and process the events
          */
         {
-            process(reader, (XMLEvent) reader.next());
+            XMLEvent event = (XMLEvent) reader.next();
+            if (event != null)
+            {
+                process(reader, event);
+            }
         }
     }
 
